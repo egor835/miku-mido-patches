@@ -1,0 +1,12 @@
+diff --git a/Android.bp b/Android.bp
+index 2b9f547..6578501 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -23939,6 +23939,7 @@ cc_prebuilt_binary {
+                 "proprietary/vendor/bin/mm-qcamera-daemon",
+             ],
+             shared_libs: [
++                "libpdafshim",
+                 "libcutils",
+                 "libdl",
+                 "libmmcamera2_mct",

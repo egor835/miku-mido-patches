@@ -1,0 +1,36 @@
+From d3d5163639d39abe6b22afcc3a4ae968cabf1949 Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Mon, 9 Nov 2026 21:47:04 +0300
+Subject: [PATCH] releasetools: Match update_dynamic_partitions to our updater
+
+The AOSP updater in bootable/deprecated-ota aborts when given the
+extra unsparse_super_empty.img argument.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Change-Id: Ia0621edb1cf7d74b53096e59bd53ab78e3f310f4
+---
+ tools/releasetools/common.py | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/tools/releasetools/common.py b/tools/releasetools/common.py
+index 0d97fbc..304221e 100644
+--- a/tools/releasetools/common.py
++++ b/tools/releasetools/common.py
+@@ -4078,13 +4078,10 @@ class DynamicPartitionsDifference(object):
+     ZipWrite(output_zip, op_list_path, "dynamic_partitions_op_list")
+ 
+     script.Comment('Update dynamic partition metadata')
+-    if self._have_super_empty:
+-      script.AppendExtra('assert(update_dynamic_partitions('
+-                        'package_extract_file("dynamic_partitions_op_list"), '
+-                        'package_extract_file("unsparse_super_empty.img")));')
+-    else:
+-      script.AppendExtra('assert(update_dynamic_partitions('
+-                        'package_extract_file("dynamic_partitions_op_list")));')
++    # bootable/deprecated-ota's updater only accepts the op list; the
++    # super_empty argument is a LineageOS updater extension.
++    script.AppendExtra('assert(update_dynamic_partitions('
++                      'package_extract_file("dynamic_partitions_op_list")));')
+ 
+     if write_verify_script:
+       for p, u in self._partition_updates.items():

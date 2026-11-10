@@ -1,0 +1,26 @@
+From 53f7af7b4308739b05547250d4e5f8eaf0a8dfd7 Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Tue, 10 Nov 2026 00:01:59 +0300
+Subject: [PATCH 10/15] mido: Disable Bluetooth LE vendor capabilities
+
+Pronto (WCN36xx) answers LE_ADV_FILTER (0xfd57) with a truncated
+opcode (0x0157), which aborts the gd HCI layer on Android 17.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ product.prop | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/product.prop b/product.prop
+index 0483612..c2784ae 100644
+--- a/product.prop
++++ b/product.prop
+@@ -5,6 +5,8 @@
+ # Bluetooth
+ bluetooth.device.class_of_device=90,2,12
+ bluetooth.device.default_name=Redmi Note 4
++# Pronto (WCN36xx) answers LE_ADV_FILTER with a truncated opcode, crashing the gd stack
++bluetooth.core.le.vendor_capabilities.enabled=false
+ bluetooth.hardware.power.operating_voltage_mv=3300
+ bluetooth.le.disable_apcf_extended_features=1
+ 

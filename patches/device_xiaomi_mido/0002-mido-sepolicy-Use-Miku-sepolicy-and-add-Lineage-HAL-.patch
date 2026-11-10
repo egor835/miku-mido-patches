@@ -1,0 +1,229 @@
+From 1cb0418243f9ce67b06c40876d19168bdaf68660 Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Sun, 8 Nov 2026 12:25:54 +0300
+Subject: [PATCH 02/15] mido: sepolicy: Use Miku sepolicy and add Lineage HAL
+ compat bits
+
+Miku's common policy only covers lineage touch (HIDL), fod and camera
+motor. Add the health, livedisplay and AIDL touch pieces mido needs.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ BoardConfig.mk                                |  9 +++++++-
+ device.mk                                     |  1 +
+ sepolicy/miku/dynamic/hal_lineage_health.te   |  4 ++++
+ .../miku/dynamic/hal_lineage_livedisplay.te   |  4 ++++
+ sepolicy/miku/dynamic/hal_lineage_touch.te    |  2 ++
+ sepolicy/miku/dynamic/service_contexts        | 18 +++++++++++++++
+ sepolicy/miku/private/platform_app.te         |  1 +
+ sepolicy/miku/private/system_app.te           |  1 +
+ sepolicy/miku/private/system_server.te        |  2 ++
+ sepolicy/miku/public/attributes               |  3 +++
+ sepolicy/miku/public/service.te               |  3 +++
+ sepolicy/miku/vendor/file_contexts            |  3 +++
+ .../miku/vendor/hal_lineage_health_default.te | 10 +++++++++
+ .../vendor/hal_lineage_livedisplay_qti.te     | 22 +++++++++++++++++++
+ .../miku/vendor/hal_lineage_touch_default.te  |  1 +
+ 15 files changed, 83 insertions(+), 1 deletion(-)
+ create mode 100644 sepolicy/miku/dynamic/hal_lineage_health.te
+ create mode 100644 sepolicy/miku/dynamic/hal_lineage_livedisplay.te
+ create mode 100644 sepolicy/miku/dynamic/hal_lineage_touch.te
+ create mode 100644 sepolicy/miku/dynamic/service_contexts
+ create mode 100644 sepolicy/miku/private/platform_app.te
+ create mode 100644 sepolicy/miku/private/system_app.te
+ create mode 100644 sepolicy/miku/private/system_server.te
+ create mode 100644 sepolicy/miku/public/attributes
+ create mode 100644 sepolicy/miku/public/service.te
+ create mode 100644 sepolicy/miku/vendor/file_contexts
+ create mode 100644 sepolicy/miku/vendor/hal_lineage_health_default.te
+ create mode 100644 sepolicy/miku/vendor/hal_lineage_livedisplay_qti.te
+ create mode 100644 sepolicy/miku/vendor/hal_lineage_touch_default.te
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 7c19825..b348d5c 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -169,11 +169,18 @@ TARGET_USES_OLD_MNC_FORMAT := true
+ VENDOR_SECURITY_PATCH := 2026-04-05
+ 
+ # SELinux
+-include device/lineage/sepolicy/libion/sepolicy.mk
++include device/miku/sepolicy/libion/sepolicy.mk
+ include device/qcom/sepolicy-legacy-um/SEPolicy.mk
+ BOARD_VENDOR_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/vendor
+ SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/private
+ 
++# SELinux - Lineage HALs not covered by Miku's common policy
++SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/miku/public
++SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/miku/private
++BOARD_VENDOR_SEPOLICY_DIRS += \
++    $(DEVICE_PATH)/sepolicy/miku/dynamic \
++    $(DEVICE_PATH)/sepolicy/miku/vendor
++
+ # Treble
+ PRODUCT_FULL_TREBLE_OVERRIDE := true
+ 
+diff --git a/device.mk b/device.mk
+index 10fb356..873e75b 100644
+--- a/device.mk
++++ b/device.mk
+@@ -49,6 +49,7 @@ PRODUCT_ENFORCE_RRO_TARGETS := *
+ # Soong namespaces
+ PRODUCT_SOONG_NAMESPACES += \
+     $(LOCAL_PATH) \
++    vendor/qcom/opensource/commonsys-intf/display \
+     bootable/deprecated-ota \
+     hardware/xiaomi
+ 
+diff --git a/sepolicy/miku/dynamic/hal_lineage_health.te b/sepolicy/miku/dynamic/hal_lineage_health.te
+new file mode 100644
+index 0000000..2f6ba2a
+--- /dev/null
++++ b/sepolicy/miku/dynamic/hal_lineage_health.te
+@@ -0,0 +1,4 @@
++# HwBinder IPC from client to server
++binder_call(hal_lineage_health_client, hal_lineage_health_server)
++
++hal_attribute_service(hal_lineage_health, hal_lineage_health_service)
+diff --git a/sepolicy/miku/dynamic/hal_lineage_livedisplay.te b/sepolicy/miku/dynamic/hal_lineage_livedisplay.te
+new file mode 100644
+index 0000000..90a5ad5
+--- /dev/null
++++ b/sepolicy/miku/dynamic/hal_lineage_livedisplay.te
+@@ -0,0 +1,4 @@
++# HwBinder IPC from client to server
++binder_call(hal_lineage_livedisplay_client, hal_lineage_livedisplay_server)
++
++hal_attribute_service(hal_lineage_livedisplay, hal_lineage_livedisplay_service)
+diff --git a/sepolicy/miku/dynamic/hal_lineage_touch.te b/sepolicy/miku/dynamic/hal_lineage_touch.te
+new file mode 100644
+index 0000000..c33e574
+--- /dev/null
++++ b/sepolicy/miku/dynamic/hal_lineage_touch.te
+@@ -0,0 +1,2 @@
++# AIDL touch service (Miku only ships the HIDL hwservice policy)
++hal_attribute_service(hal_lineage_touch, hal_lineage_touch_service)
+diff --git a/sepolicy/miku/dynamic/service_contexts b/sepolicy/miku/dynamic/service_contexts
+new file mode 100644
+index 0000000..71198f9
+--- /dev/null
++++ b/sepolicy/miku/dynamic/service_contexts
+@@ -0,0 +1,18 @@
++vendor.lineage.health.IChargingControl/default                 u:object_r:hal_lineage_health_service:s0
++vendor.lineage.health.IFastCharge/default                      u:object_r:hal_lineage_health_service:s0
++vendor.lineage.livedisplay.IAdaptiveBacklight/default          u:object_r:hal_lineage_livedisplay_service:s0
++vendor.lineage.livedisplay.IAntiFlicker/default                u:object_r:hal_lineage_livedisplay_service:s0
++vendor.lineage.livedisplay.IAutoContrast/default               u:object_r:hal_lineage_livedisplay_service:s0
++vendor.lineage.livedisplay.IColorBalance/default               u:object_r:hal_lineage_livedisplay_service:s0
++vendor.lineage.livedisplay.IColorEnhancement/default           u:object_r:hal_lineage_livedisplay_service:s0
++vendor.lineage.livedisplay.IDisplayColorCalibration/default    u:object_r:hal_lineage_livedisplay_service:s0
++vendor.lineage.livedisplay.IDisplayModes/default               u:object_r:hal_lineage_livedisplay_service:s0
++vendor.lineage.livedisplay.IPictureAdjustment/default          u:object_r:hal_lineage_livedisplay_service:s0
++vendor.lineage.livedisplay.IReadingEnhancement/default         u:object_r:hal_lineage_livedisplay_service:s0
++vendor.lineage.livedisplay.ISunlightEnhancement/default        u:object_r:hal_lineage_livedisplay_service:s0
++vendor.lineage.touch.IGloveMode/default                        u:object_r:hal_lineage_touch_service:s0
++vendor.lineage.touch.IHighTouchPollingRate/default             u:object_r:hal_lineage_touch_service:s0
++vendor.lineage.touch.IKeyDisabler/default                      u:object_r:hal_lineage_touch_service:s0
++vendor.lineage.touch.IKeySwapper/default                       u:object_r:hal_lineage_touch_service:s0
++vendor.lineage.touch.IStylusMode/default                       u:object_r:hal_lineage_touch_service:s0
++vendor.lineage.touch.ITouchscreenGesture/default               u:object_r:hal_lineage_touch_service:s0
+diff --git a/sepolicy/miku/private/platform_app.te b/sepolicy/miku/private/platform_app.te
+new file mode 100644
+index 0000000..e419ddc
+--- /dev/null
++++ b/sepolicy/miku/private/platform_app.te
+@@ -0,0 +1 @@
++hal_client_domain(platform_app, hal_lineage_livedisplay)
+diff --git a/sepolicy/miku/private/system_app.te b/sepolicy/miku/private/system_app.te
+new file mode 100644
+index 0000000..e8fdb11
+--- /dev/null
++++ b/sepolicy/miku/private/system_app.te
+@@ -0,0 +1 @@
++hal_client_domain(system_app, hal_lineage_livedisplay)
+diff --git a/sepolicy/miku/private/system_server.te b/sepolicy/miku/private/system_server.te
+new file mode 100644
+index 0000000..e2bf079
+--- /dev/null
++++ b/sepolicy/miku/private/system_server.te
+@@ -0,0 +1,2 @@
++hal_client_domain(system_server, hal_lineage_health)
++hal_client_domain(system_server, hal_lineage_livedisplay)
+diff --git a/sepolicy/miku/public/attributes b/sepolicy/miku/public/attributes
+new file mode 100644
+index 0000000..3fce216
+--- /dev/null
++++ b/sepolicy/miku/public/attributes
+@@ -0,0 +1,3 @@
++# Lineage HALs used by mido that Miku's common sepolicy doesn't declare
++hal_attribute_lineage(lineage_health)
++hal_attribute_lineage(lineage_livedisplay)
+diff --git a/sepolicy/miku/public/service.te b/sepolicy/miku/public/service.te
+new file mode 100644
+index 0000000..2c6e6c5
+--- /dev/null
++++ b/sepolicy/miku/public/service.te
+@@ -0,0 +1,3 @@
++type hal_lineage_health_service, hal_service_type, service_manager_type;
++type hal_lineage_livedisplay_service, hal_service_type, service_manager_type;
++type hal_lineage_touch_service, hal_service_type, service_manager_type;
+diff --git a/sepolicy/miku/vendor/file_contexts b/sepolicy/miku/vendor/file_contexts
+new file mode 100644
+index 0000000..b238051
+--- /dev/null
++++ b/sepolicy/miku/vendor/file_contexts
+@@ -0,0 +1,3 @@
++/(vendor|system/vendor)/bin/hw/vendor\.lineage\.health-service\.default u:object_r:hal_lineage_health_default_exec:s0
++/(vendor|system/vendor)/bin/hw/android\.hardware\.ir-service\.lineage u:object_r:hal_ir_default_exec:s0
++/(vendor|system/vendor)/bin/hw/android\.hardware\.light-service\.lineage u:object_r:hal_light_default_exec:s0
+diff --git a/sepolicy/miku/vendor/hal_lineage_health_default.te b/sepolicy/miku/vendor/hal_lineage_health_default.te
+new file mode 100644
+index 0000000..6ca7450
+--- /dev/null
++++ b/sepolicy/miku/vendor/hal_lineage_health_default.te
+@@ -0,0 +1,10 @@
++type hal_lineage_health_default, domain;
++hal_server_domain(hal_lineage_health_default, hal_lineage_health)
++
++type hal_lineage_health_default_exec, exec_type, vendor_file_type, file_type;
++init_daemon_domain(hal_lineage_health_default)
++
++binder_call(hal_lineage_health_default, servicemanager)
++
++rw_dir_file(hal_lineage_health_default, sysfs_battery_supply)
++rw_dir_file(hal_lineage_health_default, sysfs_usb_supply)
+diff --git a/sepolicy/miku/vendor/hal_lineage_livedisplay_qti.te b/sepolicy/miku/vendor/hal_lineage_livedisplay_qti.te
+new file mode 100644
+index 0000000..15a9fe9
+--- /dev/null
++++ b/sepolicy/miku/vendor/hal_lineage_livedisplay_qti.te
+@@ -0,0 +1,22 @@
++# Do not use add_service() as hal_graphics_composer_default may be the provider as well
++allow hal_lineage_livedisplay_qti qdisplay_service:service_manager find;
++
++binder_call(hal_lineage_livedisplay_qti, hal_graphics_composer_default)
++
++# Allow LiveDisplay to access vendor display property
++get_prop(hal_lineage_livedisplay_qti, vendor_display_prop)
++
++type hal_lineage_livedisplay_qti, domain;
++hal_server_domain(hal_lineage_livedisplay_qti, hal_lineage_livedisplay)
++
++type hal_lineage_livedisplay_qti_exec, exec_type, vendor_file_type, file_type;
++init_daemon_domain(hal_lineage_livedisplay_qti)
++
++binder_call(hal_lineage_livedisplay_qti, servicemanager)
++
++# Allow LiveDisplay HAL's default implementation to use vendor-binder service
++vndbinder_use(hal_lineage_livedisplay_qti)
++
++# Allow LiveDisplay to store files under /data/vendor/display and access them
++allow hal_lineage_livedisplay_qti display_vendor_data_file:dir rw_dir_perms;
++allow hal_lineage_livedisplay_qti display_vendor_data_file:file create_file_perms;
+diff --git a/sepolicy/miku/vendor/hal_lineage_touch_default.te b/sepolicy/miku/vendor/hal_lineage_touch_default.te
+new file mode 100644
+index 0000000..74e3053
+--- /dev/null
++++ b/sepolicy/miku/vendor/hal_lineage_touch_default.te
+@@ -0,0 +1 @@
++binder_call(hal_lineage_touch_default, servicemanager)

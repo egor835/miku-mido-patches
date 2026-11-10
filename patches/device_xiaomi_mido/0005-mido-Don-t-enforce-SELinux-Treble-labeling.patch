@@ -1,0 +1,25 @@
+From 7dfaa5af24109c13287788b8400df9cb122a5088 Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Mon, 9 Nov 2026 10:01:10 +0300
+Subject: [PATCH 05/15] mido: Don't enforce SELinux Treble labeling
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ miku_mido.mk | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/miku_mido.mk b/miku_mido.mk
+index 483bd97..7ebc18e 100644
+--- a/miku_mido.mk
++++ b/miku_mido.mk
+@@ -23,6 +23,10 @@ TARGET_BOOT_ANIMATION_RES := 1080
+ # Miku UI
+ MIKU_MASTER := Egor
+ 
++# Legacy vendor (IMS/QtiTelephony seapp labels, charger) predates Treble
++# labeling rules enforced for BOARD_API_LEVEL >= 202604; keep as warnings.
++PRODUCT_ENFORCE_SELINUX_TREBLE_LABELING := false
++
+ # Device identifier. This must come after all inclusions
+ PRODUCT_DEVICE := mido
+ PRODUCT_NAME := miku_mido

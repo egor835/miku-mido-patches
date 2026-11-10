@@ -1,0 +1,27 @@
+From 8f8a7748f5b5acdc96efe51c37bfa3160e22f37f Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Sun, 8 Nov 2026 06:07:57 +0300
+Subject: [PATCH 1/4] sepolicy: Declare vendor_persist_camera_prop in qva
+ public
+
+Referenced by qva/private (cameraserver, platform_app, priv_app) and
+property_contexts, but never defined, breaking system_ext policy build.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Change-Id: I355e4170b6784b801ccc6dbd17af3ae6591174c8
+---
+ qva/public/property.te | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/qva/public/property.te b/qva/public/property.te
+index 9fa59de..5fd44a9 100644
+--- a/qva/public/property.te
++++ b/qva/public/property.te
+@@ -25,6 +25,7 @@
+ # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
++system_restricted_prop(vendor_persist_camera_prop)
+ system_restricted_prop(vendor_persist_dpm_prop)
+ 
+ # this is vendor defined property  and added with prefix vendor

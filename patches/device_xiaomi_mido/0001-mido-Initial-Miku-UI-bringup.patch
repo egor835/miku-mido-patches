@@ -1,0 +1,230 @@
+From d4f17ed7832f74281956ed2144d4057be992678b Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Sat, 7 Nov 2026 23:12:00 +0300
+Subject: [PATCH 01/15] mido: Initial Miku UI bringup
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ AndroidProducts.mk                            |  7 ++-
+ device.mk                                     |  1 -
+ lineage_mido.mk                               | 51 -------------------
+ miku_mido.mk                                  | 38 ++++++++++++++
+ .../core/res/res/values/evolution_config.xml  | 20 --------
+ .../dialer/callrecord/res/values/config.xml   | 20 --------
+ .../Settings/res/values/evolution_strings.xml | 23 ---------
+ 7 files changed, 44 insertions(+), 116 deletions(-)
+ delete mode 100644 lineage_mido.mk
+ create mode 100644 miku_mido.mk
+ delete mode 100644 overlay-evolution/frameworks/base/core/res/res/values/evolution_config.xml
+ delete mode 100644 overlay-evolution/packages/apps/Dialer/java/com/android/dialer/callrecord/res/values/config.xml
+ delete mode 100644 overlay-evolution/packages/apps/Settings/res/values/evolution_strings.xml
+
+diff --git a/AndroidProducts.mk b/AndroidProducts.mk
+index f886502..a895d86 100644
+--- a/AndroidProducts.mk
++++ b/AndroidProducts.mk
+@@ -14,4 +14,9 @@
+ # limitations under the License.
+ 
+ PRODUCT_MAKEFILES := \
+-    $(LOCAL_DIR)/lineage_mido.mk
++    $(LOCAL_DIR)/miku_mido.mk
++
++COMMON_LUNCH_CHOICES := \
++    miku_mido-user \
++    miku_mido-userdebug \
++    miku_mido-eng
+diff --git a/device.mk b/device.mk
+index 85c076f..10fb356 100644
+--- a/device.mk
++++ b/device.mk
+@@ -29,7 +29,6 @@ $(call inherit-product, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)
+ 
+ # Overlays
+ DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
+-DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay-evolution
+ DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay-lineage
+ 
+ # Screen density
+diff --git a/lineage_mido.mk b/lineage_mido.mk
+deleted file mode 100644
+index fc95027..0000000
+--- a/lineage_mido.mk
++++ /dev/null
+@@ -1,51 +0,0 @@
+-#
+-# Copyright (C) 2017 The LineageOS Project
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#      http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-#
+-
+-# Inherit from those products. Most specific first.
+-$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
+-$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
+-$(call inherit-product, $(SRC_TARGET_DIR)/product/non_ab_device.mk)
+-
+-# Inherit from mido device
+-AB_OTA_UPDATER := false
+-$(call inherit-product, device/xiaomi/mido/device.mk)
+-
+-# Inherit some common LineageOS stuff.
+-$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
+-
+-# Bootanimation Resolution
+-TARGET_BOOT_ANIMATION_RES := 1080
+-
+-# Custom stuff
+-EVO_BUILD_TYPE := Official
+-TARGET_USES_LEGACY_BOOTANIMATION := true
+-TARGET_FACE_UNLOCK_SUPPORTED := true
+-TARGET_SUPPORTS_QUICK_TAP := false
+-TARGET_USES_PICO_GAPPS := true
+-
+-# Device identifier. This must come after all inclusions
+-PRODUCT_DEVICE := mido
+-PRODUCT_NAME := lineage_mido
+-PRODUCT_BRAND := Xiaomi
+-PRODUCT_MODEL := Redmi Note 4
+-PRODUCT_MANUFACTURER := Xiaomi
+-TARGET_VENDOR := Xiaomi
+-BOARD_VENDOR := Xiaomi
+-
+-PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
+-
+-PRODUCT_BUILD_PROP_OVERRIDES += \
+-    DeviceProduct=mido
+diff --git a/miku_mido.mk b/miku_mido.mk
+new file mode 100644
+index 0000000..483bd97
+--- /dev/null
++++ b/miku_mido.mk
+@@ -0,0 +1,38 @@
++#
++# Copyright (C) 2017 The LineageOS Project
++# Copyright (C) 2026 Miku UI
++#
++# SPDX-License-Identifier: Apache-2.0
++#
++
++# Inherit from those products. Most specific first.
++$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
++$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
++$(call inherit-product, $(SRC_TARGET_DIR)/product/non_ab_device.mk)
++
++# Inherit from mido device
++AB_OTA_UPDATER := false
++$(call inherit-product, device/xiaomi/mido/device.mk)
++
++# Inherit some common Miku UI stuff.
++$(call inherit-product, vendor/miku/build/product/miku_product.mk)
++
++# Bootanimation Resolution
++TARGET_BOOT_ANIMATION_RES := 1080
++
++# Miku UI
++MIKU_MASTER := Egor
++
++# Device identifier. This must come after all inclusions
++PRODUCT_DEVICE := mido
++PRODUCT_NAME := miku_mido
++PRODUCT_BRAND := Xiaomi
++PRODUCT_MODEL := Redmi Note 4
++PRODUCT_MANUFACTURER := Xiaomi
++TARGET_VENDOR := Xiaomi
++BOARD_VENDOR := Xiaomi
++
++PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
++
++PRODUCT_BUILD_PROP_OVERRIDES += \
++    DeviceProduct=mido
+diff --git a/overlay-evolution/frameworks/base/core/res/res/values/evolution_config.xml b/overlay-evolution/frameworks/base/core/res/res/values/evolution_config.xml
+deleted file mode 100644
+index fd834b9..0000000
+--- a/overlay-evolution/frameworks/base/core/res/res/values/evolution_config.xml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-     Copyright (C) 2015-2016 The CyanogenMod Project
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-          http://www.apache.org/licenses/LICENSE-2.0
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-<resources>    
+-    <!-- Whether to cancel fingerprint operation if not idle -->
+-    <bool name="config_fpCancelIfNotIdle">true</bool>
+-
+-    <!-- Whether build status should be shown or not. -->
+-    <bool name="config_show_build_status">true</bool>
+-</resources>
+diff --git a/overlay-evolution/packages/apps/Dialer/java/com/android/dialer/callrecord/res/values/config.xml b/overlay-evolution/packages/apps/Dialer/java/com/android/dialer/callrecord/res/values/config.xml
+deleted file mode 100644
+index f4512d1..0000000
+--- a/overlay-evolution/packages/apps/Dialer/java/com/android/dialer/callrecord/res/values/config.xml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<!--
+-     Copyright (C) 2015 The CyanogenMod Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-<resources>
+-    <bool name="call_recording_enabled">true</bool>
+-    <integer name="call_recording_audio_source">4</integer>
+-</resources>
+diff --git a/overlay-evolution/packages/apps/Settings/res/values/evolution_strings.xml b/overlay-evolution/packages/apps/Settings/res/values/evolution_strings.xml
+deleted file mode 100644
+index a05090b..0000000
+--- a/overlay-evolution/packages/apps/Settings/res/values/evolution_strings.xml
++++ /dev/null
+@@ -1,23 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--
+-     Copyright (C) 2019-2021 The Evolution X Project
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-          http://www.apache.org/licenses/LICENSE-2.0
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+-
+-    <!-- About device screen, build maintainer -->
+-    <string name="build_device_url">https://t.me/EvolutionXMido</string>
+-    <string name="build_maintainer_summary">Nalinish Ranjan (@HyperPower17)</string>
+-
+-    <!-- Build status -->
+-    <string name="build_status_summary">Stable</string>
+-
+-</resources>

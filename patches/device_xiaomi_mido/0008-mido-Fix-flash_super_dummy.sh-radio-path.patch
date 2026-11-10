@@ -1,0 +1,22 @@
+From fb1442914df6f78b4596a22777b77073f446abc7 Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Mon, 9 Nov 2026 22:48:38 +0300
+Subject: [PATCH 08/15] mido: Fix flash_super_dummy.sh radio path
+
+LOCAL_PATH isn't the device dir in AndroidBoard.mk.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ AndroidBoard.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/AndroidBoard.mk b/AndroidBoard.mk
+index dc7044e..297bffe 100644
+--- a/AndroidBoard.mk
++++ b/AndroidBoard.mk
+@@ -19,4 +19,4 @@ super_dummyimage: $(INSTALLED_SUPERIMAGE_DUMMY_TARGET)
+ INSTALLED_RADIOIMAGE_TARGET += $(INSTALLED_SUPERIMAGE_DUMMY_TARGET)
+ 
+ # Shipped in the OTA by releasetools.py
+-INSTALLED_RADIOIMAGE_TARGET += $(LOCAL_PATH)/configs/flash_super_dummy.sh
++INSTALLED_RADIOIMAGE_TARGET += device/xiaomi/mido/configs/flash_super_dummy.sh

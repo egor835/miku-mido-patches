@@ -1,0 +1,22 @@
+From 276137b94d5a1351882b0c28f5849a6fcf4e0b5f Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Tue, 10 Nov 2026 21:19:31 +0300
+Subject: [PATCH 15/15] mido: sepolicy: Drop duplicate AIDL USB HAL label
+
+Miku's common vendor policy already labels it.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ sepolicy/miku/vendor/file_contexts | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/sepolicy/miku/vendor/file_contexts b/sepolicy/miku/vendor/file_contexts
+index ee79bbe..363541c 100644
+--- a/sepolicy/miku/vendor/file_contexts
++++ b/sepolicy/miku/vendor/file_contexts
+@@ -2,5 +2,3 @@
+ /(vendor|system/vendor)/bin/hw/android\.hardware\.ir-service\.lineage u:object_r:hal_ir_default_exec:s0
+ /(vendor|system/vendor)/bin/hw/android\.hardware\.light-service\.lineage u:object_r:hal_light_default_exec:s0
+ 
+-# USB HAL
+-/(vendor|system/vendor)/bin/hw/android\.hardware\.usb-service\.basic u:object_r:hal_usb_default_exec:s0

@@ -1,0 +1,114 @@
+From b8eafd49054c8ee545646681b836899f61aa7195 Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Tue, 10 Nov 2026 20:17:20 +0300
+Subject: [PATCH 13/15] mido: Add PDAF shim and camera blob fixups
+
+Skip PDAF instead of crashing when the rear module's EEPROM calibration
+isn't available, and stop the sensor module from skipping modules with
+unrecognized EEPROM IDs. Supersedes the camera_config.xml fallbacks.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ extract-files.py    | 15 +++++++++++++--
+ libshims/Android.bp | 12 ++++++++++++
+ libshims/pdafshim.c | 37 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 62 insertions(+), 2 deletions(-)
+ create mode 100644 libshims/pdafshim.c
+
+diff --git a/extract-files.py b/extract-files.py
+index 93530f7..bde8797 100755
+--- a/extract-files.py
++++ b/extract-files.py
+@@ -4,6 +4,8 @@
+ # SPDX-License-Identifier: Apache-2.0
+ #
+ 
++import re
++
+ from extract_utils.fixups_blob import (
+     blob_fixup,
+     blob_fixups_user_type,
+@@ -41,9 +43,18 @@ lib_fixups: lib_fixups_user_type = {
+ blob_fixups: blob_fixups_user_type = {
+     # Camera - Path fixups
+     'vendor/bin/mm-qcamera-daemon': blob_fixup()
+-        .binary_regex_replace(b'/data/misc/camera/cam_socket', b'/data/vendor/qcam/cam_socket'),
++        .binary_regex_replace(b'/data/misc/camera/cam_socket', b'/data/vendor/qcam/cam_socket')
++        .add_needed('libpdafshim.so'),
+     'vendor/lib/libmmcamera2_sensor_modules.so': blob_fixup()
+-        .binary_regex_replace(b'/system/etc/camera', b'/vendor/etc/camera'),
++        .binary_regex_replace(b'/system/etc/camera', b'/vendor/etc/camera')
++        # sensor_init_xml_probe: don't skip modules whose EEPROM module ID isn't
++        # recognized (bne -> nop); the kernel still matches sensor ID/address.
++        .binary_regex_replace(re.escape(b'\x00\x28\x76\xd1\xd9\xf8\x00\x00'),
++                              b'\x00\x28\x00\xbf\xd9\xf8\x00\x00')
++        # port_sensor_create: treat a PDAF init failure as "no PDAF" instead of
++        # failing the stream (bgt.w -> b.w).
++        .binary_regex_replace(re.escape(b'\xff\x3f\x00\xf3\xf8\x85\xdf\xf8\x7c\x04'),
++                              b'\xff\x3f\x00\xf0\xf8\xbd\xdf\xf8\x7c\x04'),
+     ('vendor/lib/libmmcamera2_cpp_module.so', 'vendor/lib/libmmcamera2_dcrf.so', 'vendor/lib/libmmcamera2_iface_modules.so', 'vendor/lib/libmmcamera2_imglib_modules.so', 'vendor/lib/libmmcamera2_mct.so', 'vendor/lib/libmmcamera2_pproc_modules.so', 'vendor/lib/libmmcamera2_q3a_core.so', 'vendor/lib/libmmcamera2_sensor_modules.so', 'vendor/lib/libmmcamera2_stats_algorithm.so', 'vendor/lib/libmmcamera2_stats_modules.so', 'vendor/lib/libmmcamera_dbg.so', 'vendor/lib/libmmcamera_imglib.so', 'vendor/lib/libmmcamera_pdafcamif.so', 'vendor/lib/libmmcamera_pdaf.so', 'vendor/lib/libmmcamera_tintless_algo.so', 'vendor/lib/libmmcamera_tintless_bg_pca_algo.so', 'vendor/lib/libmmcamera_tuning.so'): blob_fixup()
+         .binary_regex_replace(b'/data/misc/camera/', b'/data/vendor/qcam/'),
+     # Camera - Property fixup
+diff --git a/libshims/Android.bp b/libshims/Android.bp
+index b0a9581..3afda3c 100644
+--- a/libshims/Android.bp
++++ b/libshims/Android.bp
+@@ -42,3 +42,15 @@ cc_library_shared {
+     srcs: ["gxfpd_shim.cpp"],
+     vendor: true
+ }
++
++// PDAF
++cc_library_shared {
++    name: "libpdafshim",
++    srcs: ["pdafshim.c"],
++    shared_libs: [
++        "libdl",
++        "liblog",
++    ],
++    compile_multilib: "32",
++    vendor: true
++}
+diff --git a/libshims/pdafshim.c b/libshims/pdafshim.c
+new file mode 100644
+index 0000000..547b023
+--- /dev/null
++++ b/libshims/pdafshim.c
+@@ -0,0 +1,37 @@
++// Skip PDAF when the module has no usable EEPROM calibration.
++//
++// Xiaomi's mido camera stack passes NULL-based garbage (e.g. 0x11f84) as the
++// PDAF calibration pointer when the rear module's EEPROM data isn't loaded,
++// and libmmcamera_pdaf memcpy()s from it, killing mm-qcamera-daemon on
++// full-resolution streams. pdaf_init() already handles a NULL handle by
++// running without PDAF, so return NULL in that case.
++#include <android/log.h>
++#include <dlfcn.h>
++#include <stdint.h>
++
++#define TAG "pdafshim"
++#define PARAM_PD_TYPE   0x24a0  // 3 = dual PD, doesn't use this calibration
++#define PARAM_CAL_DATA  0xc70   // copied to ctx+0x4ed4 by set_pd_context_init_info
++
++typedef void *(*pdaf_init_t)(void *);
++
++void *PDAF_PhaseDetection_init(void *param) {
++    static pdaf_init_t real;
++    if (!real) {
++        void *h = dlopen("libmmcamera_pdaf.so", RTLD_NOW);
++        real = h ? (pdaf_init_t)dlsym(h, "PDAF_PhaseDetection_init") : NULL;
++        if (!real) {
++            __android_log_print(ANDROID_LOG_ERROR, TAG, "real PDAF_PhaseDetection_init not found");
++            return NULL;
++        }
++    }
++    if (param && *(uint32_t *)((char *)param + PARAM_PD_TYPE) != 3) {
++        uintptr_t cal = *(uintptr_t *)((char *)param + PARAM_CAL_DATA);
++        if (cal < 0x100000) {
++            __android_log_print(ANDROID_LOG_WARN, TAG,
++                                "no PDAF calibration (%p), running without PDAF", (void *)cal);
++            return NULL;
++        }
++    }
++    return real(param);
++}

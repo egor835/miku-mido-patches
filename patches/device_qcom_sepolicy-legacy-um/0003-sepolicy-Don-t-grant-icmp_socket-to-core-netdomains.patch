@@ -1,0 +1,25 @@
+From fbf2f1c0f31c2eda64a35b6fa1b42b80a62cbf9b Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Sun, 8 Nov 2026 15:06:37 +0300
+Subject: [PATCH 3/4] sepolicy: Don't grant icmp_socket to core netdomains
+
+Android 17 adds pcc_component as a netdomain with a neverallow on
+icmp sockets, so the blanket netdomain rule breaks policy build.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Change-Id: Ibb23c8cd73da2d1384d2757d5c60e3dec9f5dbec
+---
+ legacy/vendor/common/net.te | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/legacy/vendor/common/net.te b/legacy/vendor/common/net.te
+index f22a4a8..8edbbf7 100644
+--- a/legacy/vendor/common/net.te
++++ b/legacy/vendor/common/net.te
+@@ -25,4 +25,5 @@
+ # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+-allow netdomain self:icmp_socket create_socket_perms;
++# pcc_component (A17) is a netdomain with a neverallow on icmp sockets
++allow { netdomain -coredomain } self:icmp_socket create_socket_perms;

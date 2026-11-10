@@ -1,0 +1,21 @@
+From b3b7035d86c90a2960da94aba8f0b1f97e9e93d0 Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Sun, 8 Nov 2026 12:25:54 +0300
+Subject: [PATCH 2/4] sepolicy: Include Miku qcom sepolicy instead of Lineage's
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Change-Id: Ie2432a1aaf501f66bd6da07d67771968ec60727b
+---
+ SEPolicy.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/SEPolicy.mk b/SEPolicy.mk
+index e399db0..36b2711 100644
+--- a/SEPolicy.mk
++++ b/SEPolicy.mk
+@@ -52,4 +52,4 @@ ifneq (,$(filter sdm660 msm8937 msm8953 msm8996 msm8998, $(TARGET_BOARD_PLATFORM
+     endif
+ endif
+ 
+--include device/lineage/sepolicy/qcom/sepolicy.mk
++-include device/miku/sepolicy/qcom/sepolicy.mk

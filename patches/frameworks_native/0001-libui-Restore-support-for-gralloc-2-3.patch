@@ -1,0 +1,31 @@
+From 21ababc460bc2814f92d814a8d49b07d24dc111e Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Mon, 9 Nov 2026 21:45:15 +0300
+Subject: [PATCH] libui: Restore support for gralloc 2/3
+
+Android 17 refuses to fall back to gralloc 2/3 mappers when
+require_gralloc4_or_newer is set, aborting composer and surfaceflinger
+on devices that only ship mapper 2.x.
+
+Based on LineageOS c7d417fbe1.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Change-Id: I81bcdfa06974867a1827c09703f83f54db0c2a09
+---
+ libs/ui/GraphicBufferMapper.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/libs/ui/GraphicBufferMapper.cpp b/libs/ui/GraphicBufferMapper.cpp
+index 91c760e..5001501 100644
+--- a/libs/ui/GraphicBufferMapper.cpp
++++ b/libs/ui/GraphicBufferMapper.cpp
+@@ -54,7 +54,8 @@ using LockResult = GraphicBufferMapper::LockResult;
+ ANDROID_SINGLETON_STATIC_INSTANCE( GraphicBufferMapper )
+ 
+ static bool requireMapper4() {
+-    return android_get_device_api_level() >= 36 && flags::require_gralloc4_or_newer();
++    // Legacy devices (e.g. msm8953) only ship gralloc 2/3 mappers.
++    return false;
+ }
+ 
+ void GraphicBufferMapper::preloadHal() {

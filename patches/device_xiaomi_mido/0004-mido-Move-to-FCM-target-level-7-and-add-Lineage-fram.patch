@@ -1,0 +1,41 @@
+From 889e564f8153077a23e1e6c509cb59ed028e83fa Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Mon, 9 Nov 2026 03:23:58 +0300
+Subject: [PATCH 04/15] mido: Move to FCM target-level 7 and add Lineage
+ framework matrix
+
+Android 17 dropped the FCM 6 matrix; Lineage/Miku relax FCM 7 for
+legacy devices instead. Miku doesn't ship vendor/lineage, so pull the
+Lineage HAL matrix in explicitly.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ BoardConfig.mk | 1 +
+ manifest.xml   | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index ca9572c..592e09d 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -115,6 +115,7 @@ BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := default
+ DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += \
+     hardware/qcom-caf/common/vendor_framework_compatibility_matrix.xml \
+     hardware/xiaomi/vintf/xiaomi_framework_compatibility_matrix.xml \
++    hardware/lineage/interfaces/compatibility_matrices/compatibility_matrix.lineage.xml \
+     $(DEVICE_PATH)/dolby_compat_framework_matrix.xml
+ DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/manifest.xml
+ DEVICE_MATRIX_FILE   := hardware/qcom-caf/common/compatibility_matrix.xml
+diff --git a/manifest.xml b/manifest.xml
+index 1699f57..00aac1a 100644
+--- a/manifest.xml
++++ b/manifest.xml
+@@ -23,7 +23,7 @@ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ -->
+-<manifest version="2.0" type="device" target-level="6">
++<manifest version="2.0" type="device" target-level="7">
+     <hal format="hidl">
+         <name>android.hardware.audio</name>
+         <transport>hwbinder</transport>

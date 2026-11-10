@@ -1,0 +1,25 @@
+From 104ef72dda379d6e41eaad762e5c1cb2003812ca Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Sun, 8 Nov 2026 15:46:21 +0300
+Subject: [PATCH 4/4] sepolicy: Drop persist.vendor.camera.privapp.list label
+
+Miku's common policy already labels it as camera2_extensions_prop.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Change-Id: Ib208c57f05399d56f18d267959d1a2ea9f7cffb9
+---
+ qva/private/property_contexts | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/qva/private/property_contexts b/qva/private/property_contexts
+index 48e8780..8ad3d45 100644
+--- a/qva/private/property_contexts
++++ b/qva/private/property_contexts
+@@ -35,7 +35,6 @@ ro.vendor.btstack.                         u:object_r:bluetooth_prop:s0
+ vendor.pts.                                u:object_r:bluetooth_prop:s0
+ vendor.bt.pts.                             u:object_r:bluetooth_prop:s0
+ vendor.bluetooth.                          u:object_r:bluetooth_prop:s0
+-persist.vendor.camera.privapp.list         u:object_r:vendor_persist_camera_prop:s0
+ 
+ #mm-parser
+ vendor.mm.enable.qcom_parser       u:object_r:vendor_mm_parser_prop:s0
