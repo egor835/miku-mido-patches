@@ -1,0 +1,43 @@
+From eba132570d47f1351d85cf6a24fb80708814a63f Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Tue, 10 Nov 2026 22:56:44 +0300
+Subject: [PATCH 16/16] mido: Enable KernelSU and optional local release keys
+
+- Add the in-tree KernelSU fragment (vendor/ksu.config) to the kernel config.
+- Pick up PRODUCT_DEFAULT_DEV_CERTIFICATE from vendor/miku-priv/keys.mk
+  when present, so builds can be signed with private keys.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ BoardConfig.mk | 3 ++-
+ miku_mido.mk   | 3 +++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 592e09d..46767e0 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -47,7 +47,8 @@ TARGET_VENDOR_PROP := $(DEVICE_PATH)/vendor.prop
+ # Kernel
+ TARGET_KERNEL_CONFIG := \
+         vendor/msm8953-perf_defconfig \
+-        vendor/akari.config
++        vendor/akari.config \
++        vendor/ksu.config
+ BOARD_KERNEL_BASE := 0x80000000
+ BOARD_KERNEL_CMDLINE := androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci earlycon=msm_hsl_uart,0x78af000 loop.max_part=7 androidboot.usbconfigfs=true
+ BOARD_KERNEL_CMDLINE += androidboot.android_dt_dir=/non-existent androidboot.boot_devices=soc/7824900.sdhci
+diff --git a/miku_mido.mk b/miku_mido.mk
+index 7ebc18e..2f83d6d 100644
+--- a/miku_mido.mk
++++ b/miku_mido.mk
+@@ -27,6 +27,9 @@ MIKU_MASTER := Egor
+ # labeling rules enforced for BOARD_API_LEVEL >= 202604; keep as warnings.
+ PRODUCT_ENFORCE_SELINUX_TREBLE_LABELING := false
+ 
++# Release keys, if present locally
++-include vendor/miku-priv/keys.mk
++
+ # Device identifier. This must come after all inclusions
+ PRODUCT_DEVICE := mido
+ PRODUCT_NAME := miku_mido

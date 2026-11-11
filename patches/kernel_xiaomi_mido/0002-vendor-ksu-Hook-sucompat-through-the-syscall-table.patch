@@ -1,0 +1,35 @@
+From ab82f1e8b56e2615302752a94c11def5d5ce5603 Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Wed, 11 Nov 2026 16:35:05 +0300
+Subject: [PATCH 2/2] vendor: ksu: Hook sucompat through the syscall table
+
+With branch-link hooking disabled this kernel has no other way to hook
+execve/faccessat/stat (no kprobes, no manual hooks), so su was never
+found. Use the syscall table hijack the fork recommends for older
+kernels.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ arch/arm64/configs/vendor/ksu.config | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/configs/vendor/ksu.config b/arch/arm64/configs/vendor/ksu.config
+index 1773af42d..c55faed88 100644
+--- a/arch/arm64/configs/vendor/ksu.config
++++ b/arch/arm64/configs/vendor/ksu.config
+@@ -1,10 +1,11 @@
+ CONFIG_KSU=y
+ CONFIG_KSU_FEATURE_SULOG=y
+ CONFIG_KSU_FEATURE_ADBROOT=y
+-# Inline branch-link hooking panics msm8953 at boot; LSM hooks are enough
++# Inline branch-link hooking panics msm8953 at boot; hook sucompat through
++# the syscall table instead (this kernel has no kprobes or manual hooks).
+ # CONFIG_KSU_HACK_ARM64_BRANCH_LINK is not set
+-CONFIG_KSU_TAMPER_SYSCALL_TABLE=n
++CONFIG_KSU_TAMPER_SYSCALL_TABLE=y
+ CONFIG_KSU_THRONE_TRACKER_ALWAYS_THREADED=y
+ CONFIG_KSU_LSM_SECURITY_HOOKS=y
+ CONFIG_KALLSYMS=y
+-CONFIG_KALLSYMS_ALL=y
+\ No newline at end of file
++CONFIG_KALLSYMS_ALL=y

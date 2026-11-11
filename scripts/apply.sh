@@ -18,6 +18,7 @@ declare -A PROJECTS=(
     [device_qcom_sepolicy-legacy-um]=device/qcom/sepolicy-legacy-um
     [device_xiaomi_mido]=device/xiaomi/mido
     [frameworks_native]=frameworks/native
+    [kernel_xiaomi_mido]=kernel/xiaomi/mido
 )
 
 for dir in "${!PROJECTS[@]}"; do

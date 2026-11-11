@@ -1,7 +1,7 @@
 From 889e564f8153077a23e1e6c509cb59ed028e83fa Mon Sep 17 00:00:00 2001
 From: Egor <egor.su.8@gmail.com>
 Date: Mon, 9 Nov 2026 03:23:58 +0300
-Subject: [PATCH 04/15] mido: Move to FCM target-level 7 and add Lineage
+Subject: [PATCH 04/16] mido: Move to FCM target-level 7 and add Lineage
  framework matrix
 
 Android 17 dropped the FCM 6 matrix; Lineage/Miku relax FCM 7 for

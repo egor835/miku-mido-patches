@@ -1,7 +1,7 @@
 From 7dfaa5af24109c13287788b8400df9cb122a5088 Mon Sep 17 00:00:00 2001
 From: Egor <egor.su.8@gmail.com>
 Date: Mon, 9 Nov 2026 10:01:10 +0300
-Subject: [PATCH 05/15] mido: Don't enforce SELinux Treble labeling
+Subject: [PATCH 05/16] mido: Don't enforce SELinux Treble labeling
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 ---

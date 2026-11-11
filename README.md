@@ -16,6 +16,7 @@ using the Evolution-X `cnb` device/vendor/kernel trees (kernel 4.19).
 | Wi-Fi 2.4/5 GHz, Bluetooth, audio (speaker, earpiece, wired headset) | |
 | Sensors, OTG, fingerprint (FPC and Goodix) | |
 | Rear and front camera, 13 MP stills, video, AF | PDAF disabled when the module's EEPROM calibration isn't available (contrast AF) |
+| KernelSU (in-tree legacy fork, SELinux enforcing) | Use the backslashxx manager matching the kernel, see below |
 
 No setup wizard: Miku UI without GApps only ships AOSP `Provision`.
 
@@ -26,7 +27,7 @@ No setup wizard: Miku UI without GApps only ships AOSP `Provision`.
 | Miku UI | `Miku-UI/manifesto` `Cinderella` | `521b67b` |
 | `device/xiaomi/mido` | `Evolution-X-Devices/device_xiaomi_mido` `cnb` | `4cae883` |
 | `vendor/xiaomi/mido` | `Evolution-X-Devices/vendor_xiaomi_mido` `cnb` | `36bc2ae` |
-| `kernel/xiaomi/mido` | `Evolution-X-Devices/kernel_xiaomi_mido` `cnb` | `0a495a07e` |
+| `kernel/xiaomi/mido` | `Evolution-X-Devices/kernel_xiaomi_mido` `cnb` | `0a495a07e` (shallow clone; `git am` works on it) |
 | `hardware/xiaomi`, `hardware/qcom-caf/msm8953/*` | LineageOS `lineage-24.0[-caf-msm8953]` | |
 
 ## Usage
@@ -46,6 +47,46 @@ make diva
 
 `repo sync` resets the patched projects to their manifest revisions, so re-run
 `apply.sh` after every sync.
+
+### Release build
+
+For a daily driver, build `user` (`lunch miku_mido-cp2a-user`) and sign with
+your own keys instead of the public AOSP test keys:
+
+```sh
+mkdir -p vendor/miku-priv/keys
+subject='/C=XX/O=Miku UI/CN=mido'
+for k in releasekey platform shared media networkstack sdk_sandbox bluetooth nfc; do
+    echo | development/tools/make_key vendor/miku-priv/keys/$k "$subject"
+done
+# keys.conf also looks up "testkey" in the certificate directory
+ln -s releasekey.x509.pem vendor/miku-priv/keys/testkey.x509.pem
+ln -s releasekey.pk8 vendor/miku-priv/keys/testkey.pk8
+echo 'PRODUCT_DEFAULT_DEV_CERTIFICATE := vendor/miku-priv/keys/releasekey' \
+    > vendor/miku-priv/keys.mk
+```
+
+`miku_mido.mk` includes `vendor/miku-priv/keys.mk` when it exists. Keep the
+keys out of any public repo and back them up: builds signed with other keys
+can't be installed over this one without wiping data, and the recovery only
+accepts OTAs signed with the key it was built with. When switching keys, flash
+the new `recovery.img` with fastboot first.
+
+### KernelSU
+
+The Evolution kernel ships the [backslashxx/KernelSU](https://github.com/backslashxx/KernelSU)
+legacy fork in `drivers/kernelsu`. `device/xiaomi/mido` adds `vendor/ksu.config`
+to the kernel config, and the kernel patches adjust it for mido:
+
+- `KSU_HACK_ARM64_BRANCH_LINK` (inline call-site patching) panics msm8953 during
+  early boot, so it's off.
+- sucompat (`su`) is hooked through the syscall table
+  (`KSU_TAMPER_SYSCALL_TABLE`) instead, since this kernel has no kprobes or
+  manual hooks.
+
+The in-tree driver reports version `32567`. Newer managers say "Kernel update
+required"; use backslashxx `v3.2.5-26` (`32549`). Grant root to apps (and
+`com.android.shell` for `adb shell su`) in the manager's Superuser tab.
 
 Building needs a lot of RAM: Soong analysis alone takes ~20 GB. With 32 GB RAM
 plus swap, `-j8` works; `-j12` ran out of memory.
@@ -126,6 +167,7 @@ their hashes before and after.
 ```
 local_manifests/mido.xml       extra projects for .repo/local_manifests
 patches/<project>/*.patch      git am series, one directory per project
+                               (including kernel_xiaomi_mido for KernelSU)
 patches/vendor_xiaomi_mido/    Android.bp change (applied with git apply)
 scripts/apply.sh               applies everything to a synced tree
 scripts/patch-camera-blobs.py  patches the camera blobs in place

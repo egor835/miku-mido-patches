@@ -1,7 +1,7 @@
 From df37da3ca8caca273dd4d5ab49797b4f7db27287 Mon Sep 17 00:00:00 2001
 From: Egor <egor.su.8@gmail.com>
 Date: Mon, 9 Nov 2026 21:47:04 +0300
-Subject: [PATCH 07/15] mido: releasetools: Ship flash_super_dummy.sh and run
+Subject: [PATCH 07/16] mido: releasetools: Ship flash_super_dummy.sh and run
  it via sh
 
 Miku's AOSP updater has no set_metadata and the build doesn't pack

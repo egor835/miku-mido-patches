@@ -1,7 +1,7 @@
 From 1cb0418243f9ce67b06c40876d19168bdaf68660 Mon Sep 17 00:00:00 2001
 From: Egor <egor.su.8@gmail.com>
 Date: Sun, 8 Nov 2026 12:25:54 +0300
-Subject: [PATCH 02/15] mido: sepolicy: Use Miku sepolicy and add Lineage HAL
+Subject: [PATCH 02/16] mido: sepolicy: Use Miku sepolicy and add Lineage HAL
  compat bits
 
 Miku's common policy only covers lineage touch (HIDL), fod and camera

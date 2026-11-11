@@ -1,0 +1,27 @@
+From ef72070408f92e611904c402f9ac52373e9cd53f Mon Sep 17 00:00:00 2001
+From: Egor <egor.su.8@gmail.com>
+Date: Wed, 11 Nov 2026 15:29:30 +0300
+Subject: [PATCH 1/2] vendor: ksu: Disable ARM64 branch-link hooking
+
+It takes the device down during early boot on msm8953 (mido); the LSM
+hooks alone work.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ arch/arm64/configs/vendor/ksu.config | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/configs/vendor/ksu.config b/arch/arm64/configs/vendor/ksu.config
+index ba668d15e..1773af42d 100644
+--- a/arch/arm64/configs/vendor/ksu.config
++++ b/arch/arm64/configs/vendor/ksu.config
+@@ -1,7 +1,8 @@
+ CONFIG_KSU=y
+ CONFIG_KSU_FEATURE_SULOG=y
+ CONFIG_KSU_FEATURE_ADBROOT=y
+-CONFIG_KSU_HACK_ARM64_BRANCH_LINK=y
++# Inline branch-link hooking panics msm8953 at boot; LSM hooks are enough
++# CONFIG_KSU_HACK_ARM64_BRANCH_LINK is not set
+ CONFIG_KSU_TAMPER_SYSCALL_TABLE=n
+ CONFIG_KSU_THRONE_TRACKER_ALWAYS_THREADED=y
+ CONFIG_KSU_LSM_SECURITY_HOOKS=y

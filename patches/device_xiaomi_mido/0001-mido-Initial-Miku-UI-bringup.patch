@@ -1,7 +1,7 @@
 From d4f17ed7832f74281956ed2144d4057be992678b Mon Sep 17 00:00:00 2001
 From: Egor <egor.su.8@gmail.com>
 Date: Sat, 7 Nov 2026 23:12:00 +0300
-Subject: [PATCH 01/15] mido: Initial Miku UI bringup
+Subject: [PATCH 01/16] mido: Initial Miku UI bringup
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 ---

@@ -1,7 +1,7 @@
 From fb1442914df6f78b4596a22777b77073f446abc7 Mon Sep 17 00:00:00 2001
 From: Egor <egor.su.8@gmail.com>
 Date: Mon, 9 Nov 2026 22:48:38 +0300
-Subject: [PATCH 08/15] mido: Fix flash_super_dummy.sh radio path
+Subject: [PATCH 08/16] mido: Fix flash_super_dummy.sh radio path
 
 LOCAL_PATH isn't the device dir in AndroidBoard.mk.
 

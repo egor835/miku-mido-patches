@@ -1,7 +1,7 @@
 From 276137b94d5a1351882b0c28f5849a6fcf4e0b5f Mon Sep 17 00:00:00 2001
 From: Egor <egor.su.8@gmail.com>
 Date: Tue, 10 Nov 2026 21:19:31 +0300
-Subject: [PATCH 15/15] mido: sepolicy: Drop duplicate AIDL USB HAL label
+Subject: [PATCH 15/16] mido: sepolicy: Drop duplicate AIDL USB HAL label
 
 Miku's common vendor policy already labels it.
 
