@@ -1,0 +1,70 @@
+From 07dc1bbe006719929dc8b6eaa23959b29cf9ec34 Mon Sep 17 00:00:00 2001
+From: Egor 835 <egor.su.8@gmail.com>
+Date: Thu, 12 Nov 2026 12:53:45 +0300
+Subject: [PATCH 18/19] mido: Declare the offload control HAL version ipacm
+ implements
+
+ipacm only registers IOffloadControl@1.0, but the manifest declared
+@1.1, so Tethering blocked forever in getService() for 1.1: no DHCP or
+NAT for hotspot clients, and the hotspot settings page crashed. FCM 7
+lists 1.1, so allow 1.0 through a device framework matrix.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ BoardConfig.mk                     |  3 ++-
+ manifest.xml                       |  2 +-
+ tetheroffload_framework_matrix.xml | 15 +++++++++++++++
+ 3 files changed, 18 insertions(+), 2 deletions(-)
+ create mode 100644 tetheroffload_framework_matrix.xml
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 2ed7bad..a5d6e88 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -117,7 +117,8 @@ DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += \
+     hardware/qcom-caf/common/vendor_framework_compatibility_matrix.xml \
+     hardware/xiaomi/vintf/xiaomi_framework_compatibility_matrix.xml \
+     hardware/lineage/interfaces/compatibility_matrices/compatibility_matrix.lineage.xml \
+-    $(DEVICE_PATH)/dolby_compat_framework_matrix.xml
++    $(DEVICE_PATH)/dolby_compat_framework_matrix.xml \
++    $(DEVICE_PATH)/tetheroffload_framework_matrix.xml
+ DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/manifest.xml
+ DEVICE_MATRIX_FILE   := hardware/qcom-caf/common/compatibility_matrix.xml
+ 
+diff --git a/manifest.xml b/manifest.xml
+index 00aac1a..fbdb4e1 100644
+--- a/manifest.xml
++++ b/manifest.xml
+@@ -173,7 +173,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     <hal format="hidl">
+         <name>android.hardware.tetheroffload.control</name>
+         <transport>hwbinder</transport>
+-        <version>1.1</version>
++        <version>1.0</version>
+         <interface>
+             <name>IOffloadControl</name>
+             <instance>default</instance>
+diff --git a/tetheroffload_framework_matrix.xml b/tetheroffload_framework_matrix.xml
+new file mode 100644
+index 0000000..6ae1dbc
+--- /dev/null
++++ b/tetheroffload_framework_matrix.xml
+@@ -0,0 +1,15 @@
++<?xml version="2.0" encoding="UTF-8"?>
++<!--
++     ipacm (data-ipa-cfg-mgr-legacy-um) only implements IOffloadControl@1.0,
++     while FCM level 7 lists @1.1.
++-->
++<compatibility-matrix version="2.0" type="framework">
++    <hal format="hidl" optional="true">
++        <name>android.hardware.tetheroffload.control</name>
++        <version>1.0</version>
++        <interface>
++            <name>IOffloadControl</name>
++            <instance>default</instance>
++        </interface>
++    </hal>
++</compatibility-matrix>
+-- 
+2.56.0
+

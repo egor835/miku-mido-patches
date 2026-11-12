@@ -1,0 +1,38 @@
+From 760ace685aaa03aec7545b19b3fd219fe7d121ae Mon Sep 17 00:00:00 2001
+From: Egor 835 <egor.su.8@gmail.com>
+Date: Thu, 12 Nov 2026 12:53:45 +0300
+Subject: [PATCH 19/19] mido: sepolicy: Label lirc devices for the IR HAL
+
+From LineageOS device/lineage/sepolicy, which Miku's sepolicy replaces.
+Without it the IR HAL can't write /dev/lirc0.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ sepolicy/miku/vendor/file_contexts     | 2 ++
+ sepolicy/miku/vendor/hal_ir_default.te | 4 ++++
+ 2 files changed, 6 insertions(+)
+ create mode 100644 sepolicy/miku/vendor/hal_ir_default.te
+
+diff --git a/sepolicy/miku/vendor/file_contexts b/sepolicy/miku/vendor/file_contexts
+index 363541c..f1d8d90 100644
+--- a/sepolicy/miku/vendor/file_contexts
++++ b/sepolicy/miku/vendor/file_contexts
+@@ -2,3 +2,5 @@
+ /(vendor|system/vendor)/bin/hw/android\.hardware\.ir-service\.lineage u:object_r:hal_ir_default_exec:s0
+ /(vendor|system/vendor)/bin/hw/android\.hardware\.light-service\.lineage u:object_r:hal_light_default_exec:s0
+ 
++
++/dev/lirc[0-9]+ u:object_r:lirc_device:s0
+diff --git a/sepolicy/miku/vendor/hal_ir_default.te b/sepolicy/miku/vendor/hal_ir_default.te
+new file mode 100644
+index 0000000..d87da1a
+--- /dev/null
++++ b/sepolicy/miku/vendor/hal_ir_default.te
+@@ -0,0 +1,4 @@
++# From LineageOS device/lineage/sepolicy (common/vendor)
++type lirc_device, dev_type;
++
++allow hal_ir_default lirc_device:chr_file rw_file_perms;
+-- 
+2.56.0
+

@@ -1,0 +1,40 @@
+From f8f8092aa79661a1c64fc6afeac4170660e16006 Mon Sep 17 00:00:00 2001
+From: Egor 835 <egor.su.8@gmail.com>
+Date: Thu, 12 Nov 2026 12:53:26 +0300
+Subject: [PATCH] libstagefright: Re-sync surface generation after reconnecting
+
+connectToSurface() sets a fresh generation number and then disconnects
+and reconnects the surface. Surface::disconnect() resets the Surface's
+cached generation to 0 while the BufferQueue keeps the new one, and
+Surface::attachBuffer() stamps attached buffers with the cached value.
+ACodec moves its output buffers with attachBuffer() in setSurface(), so
+every surface switch failed with "attachBuffer: generation number
+mismatch" on OMX decoders (e.g. ExoPlayer switching output surfaces).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Change-Id: I4eb64e06ee64dd9f9de1e572270b00a76b37abdb
+---
+ media/libstagefright/MediaCodec.cpp | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/media/libstagefright/MediaCodec.cpp b/media/libstagefright/MediaCodec.cpp
+index ccd7790..324d644 100644
+--- a/media/libstagefright/MediaCodec.cpp
++++ b/media/libstagefright/MediaCodec.cpp
+@@ -7724,6 +7724,13 @@ status_t MediaCodec::connectToSurface(const sp<Surface> &surface, uint32_t *gene
+                     new OnBufferReleasedListener(*generation, mBufferChannel);
+             err = surfaceConnectWithListener(
+                     surface, listener, "connectToSurface(reconnect-with-listener)");
++            if (err == OK) {
++                // Surface::disconnect() resets the Surface's cached generation to 0 while the
++                // BufferQueue keeps it. Surface::attachBuffer() stamps attached buffers with
++                // the cached value, so ACodec's buffer migration in setSurface() would fail
++                // with a generation mismatch. Re-sync it after reconnecting.
++                surface->setGenerationNumber(*generation);
++            }
+         }
+ 
+         if (err != OK) {
+-- 
+2.56.0
+

@@ -14,7 +14,8 @@ using the Evolution-X `cnb` device/vendor/kernel trees (kernel 4.19).
 | Boot, encryption (FBE), dynamic partitions (retrofit) | |
 | RIL: calls, SMS, LTE data | VoLTE untested |
 | Wi-Fi 2.4/5 GHz, Bluetooth, audio (speaker, earpiece, wired headset) | |
-| Sensors, OTG, fingerprint (FPC and Goodix) | |
+| Wi-Fi hotspot | STA or AP, not both at once (Pronto limitation) |
+| Sensors, OTG, fingerprint (FPC and Goodix), IR blaster | |
 | Rear and front camera, 13 MP stills, video, AF | PDAF disabled when the module's EEPROM calibration isn't available (contrast AF) |
 | KernelSU (in-tree legacy fork, SELinux enforcing) | Use the backslashxx manager matching the kernel, see below |
 
@@ -113,6 +114,11 @@ before the first install.
 - **frameworks/native**: restore the gralloc 2/3 fallback in `libui`. Android 17
   only allows mapper 4+ (`require_gralloc4_or_newer`), which aborts composer
   and surfaceflinger on mapper 2.x devices.
+- **frameworks/av**: re-sync the surface generation number after `MediaCodec`
+  reconnects a surface. `Surface::disconnect()` resets its cached generation
+  while the BufferQueue keeps it, so ACodec (OMX) failed every output surface
+  switch with "attachBuffer: generation number mismatch" (ExoPlayer apps show a
+  playback error and freeze). Codec2 devices don't hit this path.
 - **build/make**: `update_dynamic_partitions` with one argument. The releasetools
   pass `unsparse_super_empty.img` (a LineageOS updater extension), which the AOSP
   updater in `bootable/deprecated-ota` rejects.
@@ -137,6 +143,12 @@ before the first install.
   sepolicy (so `UsbService` blocked boot on "Phone is starting"), and it reports
   a permanently connected port with unknown data status, which shows
   "Charging this device via USB" forever.
+- Wi-Fi: allow an AP interface in `WIFI_HAL_INTERFACE_COMBINATIONS` (it only
+  listed STA, so hotspot failed immediately), and declare `IOffloadControl@1.0`,
+  the version ipacm implements. With `@1.1` in the manifest, Tethering waits
+  forever in `getService()` (no DHCP/NAT for clients, the hotspot settings page
+  crashes). FCM 7 lists 1.1, so a device framework matrix adds 1.0.
+- IR: label `/dev/lirc*` for the IR HAL (Lineage sepolicy bit Miku lacks).
 - Bluetooth: `bluetooth.core.le.vendor_capabilities.enabled=false`. Pronto
   (WCN36xx) answers `LE_ADV_FILTER` with a truncated opcode and the gd stack
   aborts.

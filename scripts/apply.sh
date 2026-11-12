@@ -17,6 +17,7 @@ declare -A PROJECTS=(
     [build_make]=build/make
     [device_qcom_sepolicy-legacy-um]=device/qcom/sepolicy-legacy-um
     [device_xiaomi_mido]=device/xiaomi/mido
+    [frameworks_av]=frameworks/av
     [frameworks_native]=frameworks/native
     [kernel_xiaomi_mido]=kernel/xiaomi/mido
 )
