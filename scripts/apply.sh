@@ -19,6 +19,7 @@ declare -A PROJECTS=(
     [device_xiaomi_mido]=device/xiaomi/mido
     [frameworks_av]=frameworks/av
     [frameworks_native]=frameworks/native
+    [frameworks_opt_telephony]=frameworks/opt/telephony
     [kernel_xiaomi_mido]=kernel/xiaomi/mido
 )
 

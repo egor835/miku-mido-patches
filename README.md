@@ -119,6 +119,10 @@ before the first install.
   while the BufferQueue keeps it, so ACodec (OMX) failed every output surface
   switch with "attachBuffer: generation number mismatch" (ExoPlayer apps show a
   playback error and freeze). Codec2 devices don't hit this path.
+- **frameworks/opt/telephony**: Android 17 dropped `IRadioConfig` 1.0, so
+  radio interface capability requests on such devices fail. The failure path
+  didn't wake the waiting caller, and every request blocked for its 2 s timeout
+  (Settings > Network & internet froze for ~8 s).
 - **build/make**: `update_dynamic_partitions` with one argument. The releasetools
   pass `unsparse_super_empty.img` (a LineageOS updater extension), which the AOSP
   updater in `bootable/deprecated-ota` rejects.

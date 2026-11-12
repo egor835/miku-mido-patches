@@ -1,0 +1,36 @@
+From db8c0853263c1cb15ef6001d00fc81e5ffb8f0d4 Mon Sep 17 00:00:00 2001
+From: Egor 835 <egor.su.8@gmail.com>
+Date: Thu, 12 Nov 2026 14:16:54 +0300
+Subject: [PATCH] RadioInterfaceCapabilityController: Don't wait out the
+ timeout on failure
+
+Without a supported IRadioConfig HAL (devices with radio.config@1.0),
+getHalDeviceCapabilities() replies with a null result, so
+setupCapabilities() returned without notifying and every
+getCapabilities() call from a binder thread blocked for 2 seconds.
+Settings > Network & internet makes several such calls on its main
+thread and froze for ~8 seconds.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Change-Id: Ic1d35237d9a643c81c90f9aabf12b18d96126a20
+---
+ .../internal/telephony/RadioInterfaceCapabilityController.java | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/java/com/android/internal/telephony/RadioInterfaceCapabilityController.java b/src/java/com/android/internal/telephony/RadioInterfaceCapabilityController.java
+index e8ef142..61b3794 100644
+--- a/src/java/com/android/internal/telephony/RadioInterfaceCapabilityController.java
++++ b/src/java/com/android/internal/telephony/RadioInterfaceCapabilityController.java
+@@ -129,6 +129,9 @@ public class RadioInterfaceCapabilityController extends Handler {
+                     }
+                     if (ar.result == null) {
+                         loge("setupRadioInterfaceCapabilities: ar.result is null");
++                        // Wake up getCapabilities() instead of letting it wait out its timeout,
++                        // e.g. when there is no supported IRadioConfig HAL (< 1.1).
++                        mLockRadioInterfaceCapabilities.notify();
+                         return;
+                     }
+                     log("setupRadioInterfaceCapabilities: "
+-- 
+2.56.0
+
