@@ -13,7 +13,7 @@ using the Evolution-X `cnb` device/vendor/kernel trees (kernel 4.19).
 |---|---|
 | Boot, encryption (FBE), dynamic partitions (retrofit) | |
 | RIL: calls, SMS, LTE data | VoLTE untested |
-| Wi-Fi 2.4/5 GHz, Bluetooth, audio (speaker, earpiece, wired headset) | |
+| Wi-Fi 2.4/5 GHz, Bluetooth (incl. calls), audio (speaker, earpiece, wired headset) | |
 | Wi-Fi hotspot | STA or AP, not both at once (Pronto limitation) |
 | Sensors, OTG, fingerprint (FPC and Goodix), IR blaster | |
 | Rear and front camera, 13 MP stills, video, AF | PDAF disabled when the module's EEPROM calibration isn't available (contrast AF) |
@@ -183,7 +183,8 @@ their hashes before and after.
 ```
 local_manifests/mido.xml       extra projects for .repo/local_manifests
 patches/<project>/*.patch      git am series, one directory per project
-                               (including kernel_xiaomi_mido for KernelSU)
+                               (including kernel_xiaomi_mido: KernelSU, and
+                               the msm8953 audio DT fix for Bluetooth calls)
 patches/vendor_xiaomi_mido/    Android.bp change (applied with git apply)
 scripts/apply.sh               applies everything to a synced tree
 scripts/patch-camera-blobs.py  patches the camera blobs in place
