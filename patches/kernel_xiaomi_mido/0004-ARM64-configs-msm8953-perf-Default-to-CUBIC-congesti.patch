@@ -1,0 +1,35 @@
+From 8524e586f856a54623a35695e94ea2aa28b7a265 Mon Sep 17 00:00:00 2001
+From: Egor 835 <egor.su.8@gmail.com>
+Date: Fri, 13 Nov 2026 21:27:04 +0300
+Subject: [PATCH] ARM64: configs: msm8953-perf: Default to CUBIC congestion
+ control
+
+BBR relies on pacing, and without the fq qdisc (not enabled here) TCP
+falls back to internal pacing with a per-socket hrtimer. On this 4.19
+kernel tcp_pace_kick() storms: a trace during a Telegram upload over
+OpenVPN showed ~290k tcp_pace_kick expiries per second, the HRTIMER
+softirq ate 1-2.5 CPUs at 1-4 Mbit/s and the whole UI stuttered. With
+cubic the same upload runs at 13-20 Mbit/s with 5-9% softirq time.
+Keep BBR built in for anyone selecting it explicitly.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ arch/arm64/configs/vendor/msm8953-perf_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm64/configs/vendor/msm8953-perf_defconfig b/arch/arm64/configs/vendor/msm8953-perf_defconfig
+index 80b8b917d..126a2087e 100644
+--- a/arch/arm64/configs/vendor/msm8953-perf_defconfig
++++ b/arch/arm64/configs/vendor/msm8953-perf_defconfig
+@@ -749,7 +749,7 @@ CONFIG_TCP_CONG_BIC=y
+ CONFIG_TCP_CONG_WESTWOOD=y
+ CONFIG_TCP_CONG_HTCP=y
+ CONFIG_TCP_CONG_BBR=y
+-CONFIG_DEFAULT_BBR=y
++CONFIG_DEFAULT_CUBIC=y
+ 
+ # USB
+ CONFIG_USB=y
+-- 
+2.56.0
+

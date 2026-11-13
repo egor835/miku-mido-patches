@@ -184,7 +184,8 @@ their hashes before and after.
 local_manifests/mido.xml       extra projects for .repo/local_manifests
 patches/<project>/*.patch      git am series, one directory per project
                                (including kernel_xiaomi_mido: KernelSU, and
-                               the msm8953 audio DT fix for Bluetooth calls)
+                               the msm8953 audio DT fix for Bluetooth calls,
+                               CUBIC instead of BBR by default)
 patches/vendor_xiaomi_mido/    Android.bp change (applied with git apply)
 scripts/apply.sh               applies everything to a synced tree
 scripts/patch-camera-blobs.py  patches the camera blobs in place
