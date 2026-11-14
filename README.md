@@ -123,6 +123,10 @@ before the first install.
   radio interface capability requests on such devices fail. The failure path
   didn't wake the waiting caller, and every request blocked for its 2 s timeout
   (Settings > Network & internet froze for ~8 s).
+- **vendor/miku**: disable `android.permission.flags.system_selection_toolbar_enabled`.
+  The text selection toolbar rendered by SystemUI takes window focus when
+  tapped, so the app dismisses it before the click lands (copy, paste and the
+  overflow menu never work). Apps fall back to the in-app floating toolbar.
 - **build/make**: `update_dynamic_partitions` with one argument. The releasetools
   pass `unsparse_super_empty.img` (a LineageOS updater extension), which the AOSP
   updater in `bootable/deprecated-ota` rejects.

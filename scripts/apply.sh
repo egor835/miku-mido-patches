@@ -20,6 +20,7 @@ declare -A PROJECTS=(
     [frameworks_av]=frameworks/av
     [frameworks_native]=frameworks/native
     [frameworks_opt_telephony]=frameworks/opt/telephony
+    [vendor_miku]=vendor/miku
     [kernel_xiaomi_mido]=kernel/xiaomi/mido
 )
 

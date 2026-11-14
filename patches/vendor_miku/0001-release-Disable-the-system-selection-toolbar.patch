@@ -1,0 +1,76 @@
+From b3da7a778faf0100e86b3c88df3116dd3b81123e Mon Sep 17 00:00:00 2001
+From: egor835 <egor.su.8@gmail.com>
+Date: Sat, 14 Nov 2026 20:06:37 +0300
+Subject: [PATCH] release: Disable the system selection toolbar
+
+The remote selection toolbar (rendered by SystemUI through a
+SurfaceControlViewHost) takes window focus when it's tapped. The app
+loses focus, the text selection action mode finishes and the toolbar
+is dismissed before the click arrives, so copy/paste/more never work.
+Fall back to the in-app floating toolbar.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Change-Id: Iacf2a20720e687f97951298379a4c37aad64cfb9
+---
+ release/aconfig/cp2a/Android.bp               |  1 +
+ .../cp2a/android.permission.flags/Android.bp  | 23 +++++++++++++++++++
+ ...tion_toolbar_enabled_flag_values.textproto |  6 +++++
+ 3 files changed, 30 insertions(+)
+ create mode 100644 release/aconfig/cp2a/android.permission.flags/Android.bp
+ create mode 100644 release/aconfig/cp2a/android.permission.flags/system_selection_toolbar_enabled_flag_values.textproto
+
+diff --git a/release/aconfig/cp2a/Android.bp b/release/aconfig/cp2a/Android.bp
+index f6093c4..0f6f3ad 100644
+--- a/release/aconfig/cp2a/Android.bp
++++ b/release/aconfig/cp2a/Android.bp
+@@ -17,5 +17,6 @@ aconfig_value_set {
+     name: "aconfig_value_set-miku-cp2a",
+     values: [
+         "aconfig-values-miku-cp2a-com.android.graphics.bootanimation.flags-all",
++        "aconfig-values-miku-cp2a-android.permission.flags-all",
+     ],
+ }
+diff --git a/release/aconfig/cp2a/android.permission.flags/Android.bp b/release/aconfig/cp2a/android.permission.flags/Android.bp
+new file mode 100644
+index 0000000..ddeaf8c
+--- /dev/null
++++ b/release/aconfig/cp2a/android.permission.flags/Android.bp
+@@ -0,0 +1,23 @@
++//
++// Copyright (C) 2026 Miku UI
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++//
++
++aconfig_values {
++    name: "aconfig-values-miku-cp2a-android.permission.flags-all",
++    package: "android.permission.flags",
++    srcs: [
++        "*_flag_values.textproto",
++    ],
++}
+diff --git a/release/aconfig/cp2a/android.permission.flags/system_selection_toolbar_enabled_flag_values.textproto b/release/aconfig/cp2a/android.permission.flags/system_selection_toolbar_enabled_flag_values.textproto
+new file mode 100644
+index 0000000..7a88e2b
+--- /dev/null
++++ b/release/aconfig/cp2a/android.permission.flags/system_selection_toolbar_enabled_flag_values.textproto
+@@ -0,0 +1,6 @@
++flag_value {
++  package: "android.permission.flags"
++  name: "system_selection_toolbar_enabled"
++  state: DISABLED
++  permission: READ_ONLY
++}
+-- 
+2.56.0
+
