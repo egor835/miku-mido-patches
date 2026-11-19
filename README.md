@@ -11,10 +11,10 @@ using the Evolution-X `cnb` device/vendor/kernel trees (kernel 4.19).
 
 | Works | Notes |
 |---|---|
-| Boot, encryption (FBE), dynamic partitions (retrofit) | |
+| Boot, encryption (FBE), dynamic partitions (retrofit), off-mode charging | |
 | RIL: calls, SMS, LTE data | VoLTE untested |
 | Wi-Fi 2.4/5 GHz, Bluetooth (incl. calls), audio (speaker, earpiece, wired headset) | |
-| Wi-Fi hotspot | STA or AP, not both at once (Pronto limitation) |
+| Wi-Fi hotspot (optionally through the VPN) | STA or AP, not both at once (Pronto limitation) |
 | Sensors, OTG, fingerprint (FPC and Goodix), IR blaster | |
 | Rear and front camera, 13 MP stills, video, AF | PDAF disabled when the module's EEPROM calibration isn't available (contrast AF) |
 | KernelSU (in-tree legacy fork, SELinux enforcing) | Use the backslashxx manager matching the kernel, see below |
@@ -127,6 +127,11 @@ before the first install.
   The text selection toolbar rendered by SystemUI takes window focus when
   tapped, so the app dismisses it before the click lands (copy, paste and the
   overflow menu never work). Apps fall back to the in-app floating toolbar.
+- **VPN for hotspot clients** (from LineageOS `lineage-24.0`): *Use VPN for
+  connected devices* toggle in Settings > Network & internet > Hotspot &
+  tethering (`Settings.Secure.TETHERING_ALLOW_VPN_UPSTREAMS` in
+  **frameworks/base**, the switch in **packages/apps/Settings**, and the
+  upstream selection in **packages/modules/Connectivity**).
 - **build/make**: `update_dynamic_partitions` with one argument. The releasetools
   pass `unsparse_super_empty.img` (a LineageOS updater extension), which the AOSP
   updater in `bootable/deprecated-ota` rejects.
@@ -156,6 +161,9 @@ before the first install.
   the version ipacm implements. With `@1.1` in the manifest, Tethering waits
   forever in `getService()` (no DHCP/NAT for clients, the hotspot settings page
   crashes). FCM 7 lists 1.1, so a device framework matrix adds 1.0.
+- Charger: ship `charger_res_images_vendor`. The vendor health service only
+  loads its images from `/vendor/etc/res`, so off-mode charging showed a black
+  screen.
 - IR: label `/dev/lirc*` for the IR HAL (Lineage sepolicy bit Miku lacks).
 - Bluetooth: `bluetooth.core.le.vendor_capabilities.enabled=false`. Pronto
   (WCN36xx) answers `LE_ADV_FILTER` with a truncated opcode and the gd stack

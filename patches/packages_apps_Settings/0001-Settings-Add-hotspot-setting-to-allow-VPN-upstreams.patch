@@ -1,0 +1,62 @@
+From 672a95802dfc0c6d86c454871504f87a9aa46233 Mon Sep 17 00:00:00 2001
+From: egor835 <egor.su.8@gmail.com>
+Date: Thu, 19 Nov 2026 19:31:58 +0300
+Subject: [PATCH] Settings: Add hotspot setting to allow VPN upstreams
+
+Based on LineageOS commit 2626d2117740, using Miku's
+SecureSettingSwitchPreference.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Change-Id: I68932ab986bc8f6ffbfbefcafbee0473b81b0f61
+---
+ res/values-ru/miku_strings.xml | 6 ++++++
+ res/values/miku_strings.xml    | 4 ++++
+ res/xml/tether_prefs.xml       | 6 ++++++
+ 3 files changed, 16 insertions(+)
+ create mode 100644 res/values-ru/miku_strings.xml
+
+diff --git a/res/values-ru/miku_strings.xml b/res/values-ru/miku_strings.xml
+new file mode 100644
+index 0000000..d080cb0
+--- /dev/null
++++ b/res/values-ru/miku_strings.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <!-- Hotspot extras -->
++    <string name="tethering_allow_vpn_upstreams_title">Использовать VPN для подключённых устройств</string>
++    <string name="tethering_allow_vpn_upstreams_summary">Когда на этом устройстве включён VPN, все устройства, подключённые к точке доступа, будут использовать тот же VPN</string>
++</resources>
+diff --git a/res/values/miku_strings.xml b/res/values/miku_strings.xml
+index b5e7ce7..9c6a3f0 100644
+--- a/res/values/miku_strings.xml
++++ b/res/values/miku_strings.xml
+@@ -81,4 +81,8 @@
+     <string name="show_navbar_gesture_bar_title">Gesture bar</string>
+     <string name="show_navbar_gesture_bar_summary">Show gesture bar at the bottom of the screen</string>
+ 
++    <!-- Hotspot extras -->
++    <string name="tethering_allow_vpn_upstreams_title">Use VPN for connected devices</string>
++    <string name="tethering_allow_vpn_upstreams_summary">When this device is using a VPN, all devices connected to the hotspot will use the same VPN</string>
++
+ </resources>
+diff --git a/res/xml/tether_prefs.xml b/res/xml/tether_prefs.xml
+index 33a51d8..a502b17 100644
+--- a/res/xml/tether_prefs.xml
++++ b/res/xml/tether_prefs.xml
+@@ -49,6 +49,12 @@
+         android:summary="@string/ethernet_tethering_subtext"
+         settings:keywords="@string/keywords_hotspot_tethering" />
+ 
++    <com.miku.settings.preferences.SecureSettingSwitchPreference
++        android:key="tethering_allow_vpn_upstreams"
++        android:title="@string/tethering_allow_vpn_upstreams_title"
++        android:summary="@string/tethering_allow_vpn_upstreams_summary"
++        android:defaultValue="false" />
++
+     <com.android.settingslib.widget.FooterPreference
+         android:key="disabled_on_data_saver"
+         android:title="@string/tether_settings_disabled_on_data_saver"
+-- 
+2.56.0
+

@@ -1,0 +1,61 @@
+From d682ef05d0fd1adc34eec65da4e9dc98b540056a Mon Sep 17 00:00:00 2001
+From: Oliver Scott <olivercscott@gmail.com>
+Date: Thu, 15 Aug 2019 19:40:55 -0700
+Subject: [PATCH] fw/b: Add setting to allow tethering to use VPN upstreams
+
+Change-Id: I77ed0142e653f4993486eea44e4dac21e3f67f17
+---
+ core/java/android/provider/Settings.java              | 11 +++++++++++
+ .../provider/settings/backup/SecureSettings.java      |  1 +
+ .../settings/validators/SecureSettingsValidators.java |  1 +
+ 3 files changed, 13 insertions(+)
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index cacf2215f..e2c65f4ba 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -13972,6 +13972,17 @@ public final class Settings {
+         public static final String EXTRA_AUTOMATIC_POWER_SAVE_MODE =
+                 "extra_automatic_power_save_mode";
+ 
++        /**
++         * Whether tethering is allowed to use VPN upstreams. (0 = false, 1 = true)
++         * Any changes here must also be reflected in:
++         * packages/modules/Connectivity/Tethering/src/com/android/networkstack/tethering/
++         * Tethering.java
++         * packages/modules/Connectivity/Tethering/src/com/android/networkstack/tethering/
++         * UpstreamNetworkMonitor.java
++         * @hide
++         */
++        public static final String TETHERING_ALLOW_VPN_UPSTREAMS = "tethering_allow_vpn_upstreams";
++
+         /**
+          * Whether contextual screen timeout is enabled.
+          *
+diff --git a/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java b/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
+index ce19d0797..edc32ed2b 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
++++ b/packages/SettingsProvider/src/android/provider/settings/backup/SecureSettings.java
+@@ -309,6 +309,7 @@ public class SecureSettings {
+         Settings.Secure.ON_DEVICE_INFERENCE_UNBIND_TIMEOUT_MS,
+         Settings.Secure.ON_DEVICE_INTELLIGENCE_IDLE_TIMEOUT_MS,
+         Settings.Secure.FIRST_ON_DEVICE_MODELS_DOWNLOADED_TIME,
++        Settings.Secure.TETHERING_ALLOW_VPN_UPSTREAMS,
+         Settings.Secure.CONTENT_SAFETY_IDLE_TIMEOUT_MS,
+         Settings.Secure.CONTENT_SAFETY_UNBIND_TIMEOUT_MS,
+         Settings.Secure.CONTENT_SAFETY_SANDBOXED_UNBIND_TIMEOUT_MS,
+diff --git a/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java b/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
+index 6ef53fcb8..e1fdf9024 100644
+--- a/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
++++ b/packages/SettingsProvider/src/android/provider/settings/validators/SecureSettingsValidators.java
+@@ -497,6 +497,7 @@ public class SecureSettingsValidators {
+         VALIDATORS.put(Secure.ON_DEVICE_INTELLIGENCE_UNBIND_TIMEOUT_MS, ANY_LONG_VALIDATOR);
+         VALIDATORS.put(Secure.ON_DEVICE_INTELLIGENCE_IDLE_TIMEOUT_MS, NONE_NEGATIVE_LONG_VALIDATOR);
+         VALIDATORS.put(Secure.FIRST_ON_DEVICE_MODELS_DOWNLOADED_TIME, NONE_NEGATIVE_LONG_VALIDATOR);
++        VALIDATORS.put(Secure.TETHERING_ALLOW_VPN_UPSTREAMS, BOOLEAN_VALIDATOR);
+         VALIDATORS.put(Secure.CONTENT_SAFETY_SANDBOXED_IDLE_TIMEOUT_MS,
+                 NONE_NEGATIVE_LONG_VALIDATOR);
+         VALIDATORS.put(Secure.CONTENT_SAFETY_IDLE_TIMEOUT_MS, NONE_NEGATIVE_LONG_VALIDATOR);
+-- 
+2.56.0
+

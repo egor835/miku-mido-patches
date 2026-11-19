@@ -1,0 +1,31 @@
+From 7942d6ad329f10295c74dba45212569c8e5849e3 Mon Sep 17 00:00:00 2001
+From: egor835 <egor.su.8@gmail.com>
+Date: Thu, 19 Nov 2026 19:27:27 +0300
+Subject: [PATCH] mido: Ship vendor charger images
+
+The vendor health service (--charger) only looks for its resources in
+/vendor/etc/res, so off-mode charging showed a black screen with the
+backlight on.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ device.mk | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/device.mk b/device.mk
+index ea59705..63a1b10 100644
+--- a/device.mk
++++ b/device.mk
+@@ -238,7 +238,8 @@ PRODUCT_PACKAGES += \
+ # Health
+ PRODUCT_PACKAGES += \
+     android.hardware.health-service.qti \
+-    android.hardware.health-service.qti_recovery
++    android.hardware.health-service.qti_recovery \
++    charger_res_images_vendor
+ 
+ # Init
+ $(call soong_config_set,libinit,vendor_init_lib,//$(LOCAL_PATH):libinit_mido)
+-- 
+2.56.0
+

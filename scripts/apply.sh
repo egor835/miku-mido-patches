@@ -17,9 +17,12 @@ declare -A PROJECTS=(
     [build_make]=build/make
     [device_qcom_sepolicy-legacy-um]=device/qcom/sepolicy-legacy-um
     [device_xiaomi_mido]=device/xiaomi/mido
+    [frameworks_base]=frameworks/base
     [frameworks_av]=frameworks/av
     [frameworks_native]=frameworks/native
     [frameworks_opt_telephony]=frameworks/opt/telephony
+    [packages_apps_Settings]=packages/apps/Settings
+    [packages_modules_Connectivity]=packages/modules/Connectivity
     [vendor_miku]=vendor/miku
     [kernel_xiaomi_mido]=kernel/xiaomi/mido
 )
